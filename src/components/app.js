@@ -9,6 +9,8 @@ import RegistrationPage from "./registration-page";
 import { refreshAuthToken, clearAuth } from "../actions/auth";
 
 export class App extends React.Component {
+  timeoutHandle = null;
+
   componentDidUpdate(prevProps) {
     if (!prevProps.loggedIn && this.props.loggedIn) {
       // When we are logged in, refresh the auth token periodically
@@ -39,15 +41,25 @@ export class App extends React.Component {
   }
 
   setActive() {
-    setTimeout(function() {
-      this.props.dispatch(clearAuth());
-    }, 10000);
-    // setTimeout()
+    if (this.props.loggedIn) {
+      clearTimeout(this.timeoutHandle);
+      this.timeoutHandle = setTimeout(() => {
+        this.props.dispatch(clearAuth());
+      }, 60 * 5 * 1000);
+      this.timeoutHandle = setTimeout(() => {
+        alert("You will be logged out in 1 minute...");
+      }, 60 * 4 * 1000);
+    }
   }
 
   render() {
     return (
-      <div className="app" onClick={() => this.setActive()}>
+      <div
+        className="app"
+        onClick={() => {
+          this.setActive();
+        }}
+      >
         <HeaderBar />
         <Route exact path="/" component={LandingPage} />
         <Route exact path="/dashboard" component={Dashboard} />
